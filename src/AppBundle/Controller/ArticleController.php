@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Article;
+use AppBundle\Entity\ArticleList;
 use AppBundle\Helpers\Interfaces\DeserializerHelperInterface;
 use AppBundle\Helpers\Interfaces\JSONResponderInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -61,7 +62,9 @@ class ArticleController
      *     name="article_create",
      *     methods={"POST"}
      * )
+     *
      * @param Request $request
+     *
      * @return Response
      */
     public function createAction(Request $request)
@@ -88,5 +91,23 @@ class ArticleController
             $article,
             Response::HTTP_CREATED
         );
+    }
+
+    /**
+     * @Route(
+     *     "/articles",
+     *     name="article_list",
+     *     methods={"GET"}
+     * )
+     *
+     * @return Response
+     */
+    public function listAction()
+    {
+        $articles = $this->entityManager->getRepository(Article::class)->findAll();
+
+        $articleList = new ArticleList($articles);
+
+        return $this->responder->response($articleList);
     }
 }
