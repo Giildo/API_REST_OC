@@ -2,28 +2,35 @@
 
 namespace AppBundle\Entity;
 
+use AppBundle\Entity\Interfaces\ArticleInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
  * @ORM\Table()
  */
-class Article
+class Article implements ArticleInterface
 {
     /**
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @var string
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=100)
+     *
+     * @var string
      */
     private $title;
 
     /**
      * @ORM\Column(type="text")
+     *
+     * @var string
      */
     private $content;
 
@@ -37,22 +44,18 @@ class Article
         return $this->title;
     }
 
-    public function setTitle($title)
-    {
-        $this->title = $title;
-
-        return $this;
-    }
-
     public function getContent()
     {
         return $this->content;
     }
 
-    public function setContent($content)
+    /**
+     * @param string $title
+     * @param string $content
+     */
+    public function update($title, $content)
     {
+        $this->title = $title;
         $this->content = $content;
-
-        return $this;
     }
 }

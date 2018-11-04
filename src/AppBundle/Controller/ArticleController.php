@@ -3,43 +3,90 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Article;
+use AppBundle\Helpers\Interfaces\DeserializerHelperInterface;
+use AppBundle\Helpers\Interfaces\JSONResponderInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
-class ArticleController extends Controller
+class ArticleController
 {
+    /**
+     * @var JSONResponderInterface
+     */
+    private $responder;
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+    /**
+     * @var DeserializerHelperInterface
+     */
+    private $deserializerHelper;
+
+    /**
+     * ArticleController constructor.
+     * @param JSONResponderInterface $responder
+     * @param EntityManagerInterface $entityManager
+     * @param DeserializerHelperInterface $deserializerHelper
+     */
+    public function __construct(
+        JSONResponderInterface $responder,
+        EntityManagerInterface $entityManager,
+        DeserializerHelperInterface $deserializerHelper
+    ) {
+        $this->responder = $responder;
+        $this->entityManager = $entityManager;
+        $this->deserializerHelper = $deserializerHelper;
+    }
+
     /**
      * @Route("/articles/{id}", name="article_show")
      */
     public function showAction()
     {
         $article = new Article();
-        $article
-            ->setTitle('Mon premier article')
-            ->setContent('Le contenu de mon article.')
-        ;
-        $data = $this->get('jms_serializer')->serialize($article, 'json');
+        $article->update(
+            'Mon premier article',
+            'Le contenu de mon article.'
+        );
 
-        $response = new Response($data);
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+        return $this->responder->response($article);
     }
 
     /**
-     * @Route("/articles", name="article_create")
+     * @Route(
+     *     "/articles",
+     *     name="article_create",
+     *     methods={"POST"}
+     * )
+     * @param Request $request
+     * @return Response
      */
     public function createAction(Request $request)
     {
-        $data = $request->getContent();
-        $article = $this->get('jms_serializer')->deserialize($data, 'AppBundle\Entity\Article', 'json');
+        $dto = $this->deserializerHelper->deserialize($request->getContent());
 
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($article);
-        $em->flush();
+        if (is_null($dto)) {
+            return new Response(
+                '',
+                Response::HTTP_BAD_REQUEST
+            );
+        }
 
-        return new Response('', Response::HTTP_CREATED);
+        $article = new Article();
+        $article->update(
+            $dto->title,
+            $dto->content
+        );
+
+        $this->entityManager->persist($article);
+        $this->entityManager->flush();
+
+        return $this->responder->response(
+            $article,
+            Response::HTTP_CREATED
+        );
     }
 }
