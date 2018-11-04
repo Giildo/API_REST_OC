@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 
 class ArticleController
 {
@@ -44,7 +45,7 @@ class ArticleController
     /**
      * @Route("/articles/{id}", name="article_show")
      */
-    public function showAction()
+    public function showAction(Article $article)
     {
         $article = new Article();
         $article->update(
@@ -88,5 +89,20 @@ class ArticleController
             $article,
             Response::HTTP_CREATED
         );
+    }
+
+    /**
+     * @Route("/articles", name="article_list")
+     * @Method({"GET"})
+     */
+    public function listAction()
+    {
+        $articles = $this->getDoctrine()->getRepository('AppBundle:Article')->findAll();
+        $data = $this->get('jms_serializer')->serialize($articles, 'json');
+
+        $response = new Response($data);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
     }
 }
