@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 
 class ArticleController extends Controller
 {
@@ -30,6 +31,7 @@ class ArticleController extends Controller
 
     /**
      * @Route("/articles", name="article_create")
+     * @Method({"POST"})
      */
     public function createAction(Request $request)
     {
@@ -41,5 +43,20 @@ class ArticleController extends Controller
         $em->flush();
 
         return new Response('', Response::HTTP_CREATED);
+    }
+
+    /**
+     * @Route("/articles", name="article_list")
+     * @Method({"GET"})
+     */
+    public function listAction()
+    {
+        $articles = $this->getDoctrine()->getRepository('AppBundle:Article')->findAll();
+        $data = $this->get('jms_serializer')->serialize($articles, 'json');
+
+        $response = new Response($data);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
     }
 }
