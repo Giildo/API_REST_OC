@@ -62,9 +62,7 @@ class ArticleController
      *     name="article_create",
      *     methods={"POST"}
      * )
-     *
      * @param Request $request
-     *
      * @return Response
      */
     public function createAction(Request $request)
@@ -96,17 +94,16 @@ class ArticleController
     /**
      * @Route(
      *     "/articles",
-     *     name="article_list",
+     *     name="article_create",
      *     methods={"GET"}
      * )
-     *
      * @return Response
      */
     public function listAction()
     {
-        $articles = $this->entityManager->getRepository(Article::class)->findAll();
-
-        $articleList = new ArticleList($articles);
+        $articleList = new ArticleList(
+            $this->entityManager->getRepository(Article::class)->findAll()
+        );
 
         return $this->responder->response($articleList);
     }
