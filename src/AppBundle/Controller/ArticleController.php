@@ -6,6 +6,7 @@ use AppBundle\Entity\Article;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 class ArticleController extends Controller
 {
@@ -29,7 +30,6 @@ class ArticleController extends Controller
 
     /**
      * @Route("/articles", name="article_create")
-     * @Method({"POST"})
      */
     public function createAction(Request $request)
     {
