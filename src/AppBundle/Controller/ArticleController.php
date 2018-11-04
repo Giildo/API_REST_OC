@@ -13,13 +13,13 @@ class ArticleController extends Controller
     /**
      * @Route("/articles/{id}", name="article_show")
      */
-    public function showAction()
+    public function showAction(Article $article)
     {
-        $article = new Article();
-        $article
-            ->setTitle('Mon premier article')
-            ->setContent('Le contenu de mon article.')
-        ;
+        #$article = new Article(Article $article);
+       # $article
+            #->setTitle('Mon premier article')
+            #->setContent('Le contenu de mon article.')
+        #;
         $data = $this->get('jms_serializer')->serialize($article, 'json');
 
         $response = new Response($data);
